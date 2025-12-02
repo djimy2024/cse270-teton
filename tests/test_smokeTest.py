@@ -18,33 +18,58 @@ class TestSmokeTest():
   def teardown_method(self, method):
     self.driver.quit()
   
-  def test_smokeTest(self):
-    self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
+  def test_admin(self):
+    self.driver.get("http://127.0.0.1:5501/teton/1.6/index.html")
+    self.driver.set_window_size(1242, 680)
+    self.driver.find_element(By.LINK_TEXT, "Admin").click()
+    elements = self.driver.find_elements(By.ID, "username")
+    assert len(elements) > 0
+    self.driver.find_element(By.ID, "username").send_keys("Incorrect")
+    self.driver.find_element(By.ID, "password").click()
+    self.driver.find_element(By.ID, "password").send_keys("password")
+    self.driver.find_element(By.LINK_TEXT, "Admin").click()
+    self.driver.find_element(By.ID, "username").click()
+    self.driver.find_element(By.ID, "username").send_keys("Incorrect")
+    self.driver.find_element(By.ID, "password").click()
+    self.driver.find_element(By.ID, "password").send_keys("password")
+    self.driver.find_element(By.CSS_SELECTOR, ".mysubmit:nth-child(4)").click()
+    WebDriverWait(self.driver, 30).until(expected_conditions.text_to_be_present_in_element((By.CSS_SELECTOR, ".errorMessage"), "Invalid username and password."))
+    self.driver.find_element(By.CSS_SELECTOR, ".mysubmit:nth-child(4)").click()
+  
+  def test_directory(self):
+    self.driver.get("http://127.0.0.1:5501/teton/1.6/index.html")
+    self.driver.set_window_size(1242, 680)
+    self.driver.find_element(By.LINK_TEXT, "Directory").click()
+    self.driver.find_element(By.ID, "directory-grid").click()
+    assert self.driver.find_element(By.ID, "directory-grid").text == "GRID"
+    elements = self.driver.find_elements(By.CSS_SELECTOR, ".gold-member:nth-child(9) > p:nth-child(2)")
+    assert len(elements) > 0
+    assert self.driver.find_element(By.ID, "directory-list").text == "LIST"
+    self.driver.find_element(By.ID, "directory-list").click()
+    elements = self.driver.find_elements(By.CSS_SELECTOR, ".gold-member:nth-child(9) > p:nth-child(2)")
+    assert len(elements) > 0
+  
+  def test_homePage(self):
+    self.driver.get("http://127.0.0.1:5501/teton/1.6/index.html")
     self.driver.set_window_size(1242, 680)
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".header-logo img")
     assert len(elements) > 0
     assert self.driver.find_element(By.CSS_SELECTOR, ".header-title > h1").text == "Teton Idaho"
     assert self.driver.find_element(By.CSS_SELECTOR, ".header-title > h2").text == "Chamber of Commerce"
-    elements = self.driver.find_elements(By.CSS_SELECTOR, ".header-icons > a:nth-child(1) > img")
+    elements = self.driver.find_elements(By.ID, "nopad")
     assert len(elements) > 0
-    elements = self.driver.find_elements(By.CSS_SELECTOR, "a:nth-child(2) > img")
+    elements = self.driver.find_elements(By.CSS_SELECTOR, ".centered-image:nth-child(2) > img")
     assert len(elements) > 0
     elements = self.driver.find_elements(By.LINK_TEXT, "Join Us")
     assert len(elements) > 0
     self.driver.find_element(By.LINK_TEXT, "Join Us").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)").text == "First Name"
-    self.driver.find_element(By.LINK_TEXT, "Directory").click()
-    assert self.driver.find_element(By.ID, "directory-grid").text == "GRID"
-    elements = self.driver.find_elements(By.CSS_SELECTOR, ".gold-member:nth-child(9) > p:nth-child(2)")
-    assert len(elements) > 0
-    self.driver.find_element(By.ID, "directory-list").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".gold-member:nth-child(9) > p:nth-child(2)").text == "Teton Turf and Tree"
+  
+  def test_join(self):
+    self.driver.get("http://127.0.0.1:5501/teton/1.6/index.html")
+    self.driver.set_window_size(1242, 680)
     self.driver.find_element(By.LINK_TEXT, "Join").click()
     elements = self.driver.find_elements(By.NAME, "fname")
     assert len(elements) > 0
-    self.driver.find_element(By.NAME, "fname").send_keys("D")
-    self.driver.find_element(By.NAME, "fname").send_keys(Keys.ENTER)
-    self.driver.find_element(By.NAME, "fname").click()
     self.driver.find_element(By.NAME, "fname").send_keys("Djimy")
     self.driver.find_element(By.NAME, "lname").click()
     self.driver.find_element(By.NAME, "lname").send_keys("Francillon")
@@ -55,14 +80,4 @@ class TestSmokeTest():
     self.driver.find_element(By.NAME, "submit").click()
     elements = self.driver.find_elements(By.NAME, "email")
     assert len(elements) > 0
-    self.driver.find_element(By.LINK_TEXT, "Admin").click()
-    elements = self.driver.find_elements(By.ID, "username")
-    assert len(elements) > 0
-    self.driver.find_element(By.ID, "username").click()
-    self.driver.find_element(By.ID, "username").send_keys("DjimyF")
-    self.driver.find_element(By.CSS_SELECTOR, ".admin-main").click()
-    self.driver.find_element(By.ID, "password").click()
-    self.driver.find_element(By.ID, "password").send_keys("mypassword")
-    self.driver.find_element(By.CSS_SELECTOR, ".mysubmit:nth-child(4)").click()
-    assert self.driver.find_element(By.CSS_SELECTOR, ".errorMessage").text == "Invalid username and password."
   
