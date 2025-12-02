@@ -4,15 +4,19 @@ import time
 import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
 
 class TestSmokeTest():
   def setup_method(self, method):
-    self.driver = webdriver.Firefox()
+    options = Options()
+    options.add_argument("--headless=new")
+    self.driver = webdriver.Chrome(options=options)
     self.vars = {}
   
   def teardown_method(self, method):
@@ -65,19 +69,23 @@ class TestSmokeTest():
     self.driver.find_element(By.LINK_TEXT, "Join Us").click()
   
   def test_join(self):
-    self.driver.get("http://127.0.0.1:5501/teton/1.6/index.html")
-    self.driver.set_window_size(1242, 680)
-    self.driver.find_element(By.LINK_TEXT, "Join").click()
-    elements = self.driver.find_elements(By.NAME, "fname")
-    assert len(elements) > 0
-    self.driver.find_element(By.NAME, "fname").send_keys("Djimy")
-    self.driver.find_element(By.NAME, "lname").click()
-    self.driver.find_element(By.NAME, "lname").send_keys("Francillon")
-    self.driver.find_element(By.NAME, "bizname").click()
-    self.driver.find_element(By.NAME, "bizname").send_keys("FDj-Tech")
-    self.driver.find_element(By.NAME, "biztitle").click()
-    self.driver.find_element(By.NAME, "biztitle").send_keys("Manager")
-    self.driver.find_element(By.NAME, "submit").click()
-    elements = self.driver.find_elements(By.NAME, "email")
-    assert len(elements) > 0
-  
+    driver = self.driver
+    wait = WebDriverWait(driver, 10)  
+    driver.get("http://127.0.0.1:5501/teton/1.6/join.html")
+    driver.set_window_size(1242, 680)
+    wait.until(EC.presence_of_element_located((By.NAME, "fname"))).send_keys("Djimy")
+    driver.find_element(By.NAME, "lname").send_keys("Francillon")
+    driver.find_element(By.NAME, "bizname").send_keys("FDj-Tech")
+    driver.find_element(By.NAME, "biztitle").send_keys("Manager")
+    driver.find_element(By.NAME, "submit").click()
+    wait.until(EC.presence_of_element_located((By.NAME, "email"))).send_keys("francillonsapio@gmail.com")
+    driver.find_element(By.NAME, "cellphone").send_keys("208-468-1122")
+    driver.find_element(By.NAME, "submit").click()
+    radio = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".myradio:nth-child(13)")))
+    radio.click()
+    driver.find_element(By.NAME, "submit").click()
+    wait.until(EC.presence_of_element_located((By.NAME, "websiteURL"))).send_keys("http://www.sapio.com")
+    driver.find_element(By.CSS_SELECTOR, "textarea").send_keys(
+        "It's a small business that tends to become great in the future."
+    )
+    driver.find_element(By.NAME, "submit").click()
